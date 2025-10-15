@@ -1,0 +1,12 @@
+logging:
+  level:
+    root: INFO
+spring:
+  mvc:
+    problemdetails:
+      enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

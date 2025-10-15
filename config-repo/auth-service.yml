@@ -1,0 +1,29 @@
+server:
+  port: 8101
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://postgres:5432/authdb
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  config:
+    import:
+    optional:configserver:
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+springdoc:
+  api-docs.enabled: true
+  swagger-ui.enabled: true
+security:
+  jwt:
+    issuer: darum-ems
+    secret: change-me-in-prod

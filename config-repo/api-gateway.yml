@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - PreserveHostHeader
+      routes:
+        - id: auth
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+        - id: employee
+          uri: lb://employee-service
+          predicates:
+            - Path=/employees/**, /departments/**
+  config:
+    import:
+    optional:configserver:
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+
+security:
+  jwt:
+    issuer: darum-ems
+    secret: change-me-in-prod

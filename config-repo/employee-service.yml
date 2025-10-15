@@ -1,0 +1,39 @@
+server:
+  port: 8201
+spring:
+  application:
+    name: employee-service
+  datasource:
+    url: jdbc:postgresql://postgres:5432/hrdb
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  cloud:
+    stream:
+      defaultBinder: redis
+      bindings:
+        employeeCreated-out-0:
+          destination: hr.employee.created
+          contentType: application/json
+  data:
+    redis:
+      host: redis
+      port: 6379
+  config:
+    import:
+    optional:configserver:
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+springdoc:
+  api-docs.enabled: true
+  swagger-ui.enabled: true
+app:
+  rbac:
+    managerMustMatchDepartment: true

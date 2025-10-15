@@ -1,0 +1,20 @@
+# Java / Maven
+target/
+*.iml
+.idea/
+.vscode/
+*.log
+*.class
+*.jar
+*.war
+.mvn/wrapper/maven-wrapper.jar
+# OS
+.DS_Store
+Thumbs.db
+# Docker
+**/build/
+# IntelliJ
+*.iws
+*.ipr
+# Others
+.env
