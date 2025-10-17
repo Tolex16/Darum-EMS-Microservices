@@ -5,10 +5,13 @@
     <groupId>com.darum.ems</groupId>
     <artifactId>darum-ems</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
+
   <modelVersion>4.0.0</modelVersion>
   <artifactId>discovery-service</artifactId>
-  <name>discovery-service</name>
+  <name>Discovery Service</name>
+
 
   <dependencies>
     <dependency>
@@ -19,6 +22,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+	  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

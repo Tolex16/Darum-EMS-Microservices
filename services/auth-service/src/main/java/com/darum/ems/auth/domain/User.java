@@ -22,19 +22,23 @@ public class User implements UserDetails {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long userId;
 
-  @Column(nullable=false, unique=true)
+  @Column(nullable = false, unique = true, length = 160)
   private String email;
 
   @Column(nullable=false, name="password")
   @StrongPassword
   private String password;
 
-  @Column(name = "role")
+  @Column(name = "role", nullable = false, length = 50)
   @Enumerated(EnumType.STRING)
   private Role role;
 
   @Column(nullable=false)
   private String status = "ACTIVE";
+  
+  @Column(name = "created_at", updatable = false, insertable = false)
+  private java.time.Instant createdAt;
+
 
   @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -67,7 +71,5 @@ public class User implements UserDetails {
     }
 
     @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    public boolean isEnabled() { return "ACTIVE".equalsIgnoreCase(status); }
 }

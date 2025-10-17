@@ -9,7 +9,4 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 
 
-@Data
-@AllArgsConstructor
-@RequiredArgsConstructor
 public record DepartmentCreateRequest(String name, String code) {}

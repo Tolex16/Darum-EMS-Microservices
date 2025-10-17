@@ -50,6 +50,7 @@ services:
     container_name: darum-config
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DARUM_EMS_APP_JWTSECRET: afYx1C2rD8KpZt0vWq9nJ5eRbGsU3mTfXh4pA7sLdV0yN6oQjE1cH8kRzPwB2uF+
     ports:
       - "8888:8888"
     depends_on:
@@ -139,3 +140,11 @@ services:
 volumes:
   pgdata:
   redis_data:
+  
+  validate-compose:
+    name: 🧾 Validate Compose file
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 🧱 Check docker-compose syntax
+        run: docker compose config

@@ -41,3 +41,8 @@ management:
   endpoint:
     health:
       show-details: always
+
+darum:
+  ems:
+    app:
+      jwtsecret: afYx1C2rD8KpZt0vWq9nJ5eRbGsU3mTfXh4pA7sLdV0yN6oQjE1cH8kRzPwB2uF+

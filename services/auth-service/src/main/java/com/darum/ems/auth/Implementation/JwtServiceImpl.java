@@ -21,8 +21,9 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
 
-    @Value("${dqa.app.jwtsecret}")
+    @Value("${darum.ems.app.jwtsecret}")
     private String securityKey;
+
 
     private <T> T extractClaim (String token, Function<Claims, T> claimsResolvers){
         final Claims claims  = extractAllClaims(token);

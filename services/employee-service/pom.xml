@@ -5,10 +5,12 @@
     <groupId>com.darum.ems</groupId>
     <artifactId>darum-ems</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
+
   <modelVersion>4.0.0</modelVersion>
   <artifactId>employee-service</artifactId>
-  <name>employee-service</name>
+  <name>Employee Service</name>
 
   <dependencies>
     <dependency>
@@ -82,8 +84,12 @@
       <version>1.21.3</version>
     </dependency>
   </dependencies>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
 
-  <build>
+    <build>
     <pluginManagement>
       <plugins>
         <plugin>

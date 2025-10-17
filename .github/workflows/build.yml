@@ -1,18 +1,108 @@
-name: build
+name: Build & Deploy Darum EMS
+
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+    types: [opened, synchronize, reopened]
+
+
+env:
+  JAVA_VERSION: '17'
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ${{ github.repository_owner }}/darum-ems
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
 jobs:
   build:
+    name: 🏗️ Build & Test
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK
+      - name: 🧩 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: '17'
-      - name: Build with Maven
-        run: mvn -q -DskipTests=false -B verify
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 🧱 Build and run tests (multi-module)
+        run: mvn -B clean verify --file pom.xml
+
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-artifacts
+          path: |
+            **/target/*.jar
+            !**/original-*.jar
+
+  docker:
+    name: 🐳 Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: build
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: 🧩 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏗️ Build and push microservice images
+        run: |
+          declare -a SERVICES=("platform/config-server" "platform/discovery-service" "platform/api-gateway" "services/auth-service" "services/employee-service")
+
+          for SERVICE in "${SERVICES[@]}"; do
+            NAME=$(basename "$SERVICE")
+            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${NAME}:$GITHUB_SHA"
+            echo "🚀 Building $NAME → $IMAGE"
+            docker build -t "$IMAGE" "$SERVICE"
+            docker push "$IMAGE"
+          done
+
+      - name: 🏷️ Tag latest for main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          for SERVICE in platform/config-server platform/discovery-service platform/api-gateway services/auth-service services/employee-service; do
+            NAME=$(basename "$SERVICE")
+            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${NAME}:latest"
+            docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${NAME}:$GITHUB_SHA $IMAGE
+            docker push $IMAGE
+          done

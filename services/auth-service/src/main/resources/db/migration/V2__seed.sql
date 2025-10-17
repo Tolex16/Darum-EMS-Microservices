@@ -1,7 +1,4 @@
---INSERT INTO roles(name) VALUES ('ADMIN') ON CONFLICT DO NOTHING;
---INSERT INTO roles(name) VALUES ('MANAGER') ON CONFLICT DO NOTHING;
---INSERT INTO roles(name) VALUES ('EMPLOYEE') ON CONFLICT DO NOTHING;
--- Seed admin user (password: admin) -> you should re-hash in real app
-INSERT INTO users(username, email, password)
-VALUES ('admin','admin@local','{noop}admin')
-ON CONFLICT DO NOTHING;
+-- Seed admin user (hashed password should be rotated later)
+INSERT INTO users (email, password, role, status)
+VALUES ('darumems@gmail.com', '{noop}Winner123!', 'ADMIN', 'ACTIVE')
+ON CONFLICT (email) DO NOTHING;

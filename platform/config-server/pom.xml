@@ -5,11 +5,14 @@
     <groupId>com.darum.ems</groupId>
     <artifactId>darum-ems</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
+
   <modelVersion>4.0.0</modelVersion>
   <artifactId>config-server</artifactId>
-  <name>config-server</name>
-
+  <name>Config Server</name>
+  <packaging>jar</packaging>
+  
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -19,6 +22,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
