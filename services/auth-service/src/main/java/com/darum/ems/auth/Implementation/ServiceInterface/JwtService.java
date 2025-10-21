@@ -16,4 +16,8 @@ public interface JwtService {
     String generateToken(UserDetails userDetails);
 
     Long getUserId();
+
+    String extractRole(String token);
+
+    String getCurrentUserRole();
 }

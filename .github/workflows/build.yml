@@ -7,11 +7,10 @@ on:
     branches: [ "main" ]
     types: [opened, synchronize, reopened]
 
-
 env:
   JAVA_VERSION: '17'
   REGISTRY: ghcr.io
-  IMAGE_NAMESPACE: ${{ github.repository_owner }}/darum-ems
+  IMAGE_NAMESPACE: ${{ github.repository_owner }}
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
 jobs:
@@ -91,7 +90,7 @@ jobs:
 
           for SERVICE in "${SERVICES[@]}"; do
             NAME=$(basename "$SERVICE")
-            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${NAME}:$GITHUB_SHA"
+            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/darum-ems-${NAME}:${GITHUB_SHA}"
             echo "🚀 Building $NAME → $IMAGE"
             docker build -t "$IMAGE" "$SERVICE"
             docker push "$IMAGE"
@@ -100,9 +99,11 @@ jobs:
       - name: 🏷️ Tag latest for main branch
         if: github.ref == 'refs/heads/main'
         run: |
-          for SERVICE in platform/config-server platform/discovery-service platform/api-gateway services/auth-service services/employee-service; do
+          declare -a SERVICES=("platform/config-server" "platform/discovery-service" "platform/api-gateway" "services/auth-service" "services/employee-service")
+          for SERVICE in "${SERVICES[@]}"; do
             NAME=$(basename "$SERVICE")
-            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${NAME}:latest"
-            docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${NAME}:$GITHUB_SHA $IMAGE
-            docker push $IMAGE
+            SHA_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/darum-ems-${NAME}:${GITHUB_SHA}"
+            LATEST_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/darum-ems-${NAME}:latest"
+            docker tag "$SHA_IMAGE" "$LATEST_IMAGE"
+            docker push "$LATEST_IMAGE"
           done

@@ -1,34 +1,42 @@
 spring:
   application:
     name: auth-service
+
   config:
     import: "optional:configserver:"
+
   datasource:
-    url: jdbc:postgresql://postgres:5432/authdb
+    url: jdbc:postgresql://localhost:5432/authdb
     username: postgres
-    password: postgres
+    password: Teenwolf
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+
   flyway:
     enabled: true
+    baseline-on-migrate: true
     locations: classpath:db/migration
-  redis:
-    host: redis
-    port: 6379
+
   cloud:
+    compatibility-verifier:
+      enabled: false
     stream:
+      default-binder: kafka
+      kafka:
+        binder:
+          brokers: localhost:9092     # Change to kafka:9092 if running in Docker
       function:
-        definition: employeeCreated
+        definition: employeeCreatedConsumer
       bindings:
         employeeCreated-in-0:
           destination: employee-created-topic
-          group: auth-service
+          group: auth-service-group
           content-type: application/json
-      default-binder: redis
 
 server:
   port: 8101
@@ -46,3 +54,8 @@ darum:
   ems:
     app:
       jwtsecret: afYx1C2rD8KpZt0vWq9nJ5eRbGsU3mTfXh4pA7sLdV0yN6oQjE1cH8kRzPwB2uF+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true

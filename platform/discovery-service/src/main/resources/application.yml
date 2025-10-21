@@ -1,9 +1,12 @@
 spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
   application:
     name: discovery-service
 server:
   port: 8761
 eureka:
   client:
-    registerWithEureka: false
-    fetchRegistry: false
+    registerWithEureka: true
+    fetchRegistry: true

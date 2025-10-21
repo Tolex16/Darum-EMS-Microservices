@@ -9,12 +9,16 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
@@ -46,12 +50,20 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateToken(UserDetails userDetails) {
-        return Jwts.builder().setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis())).
-                setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 120))
-                .signWith(getSigninKey(),SignatureAlgorithm.HS256)
-                .compact();
-    }
+    User user = (User) userDetails;
+
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("role", user.getRole().name());
+
+    return Jwts.builder()
+            .setClaims(claims)
+            .setSubject(user.getUsername())
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 120))
+            .signWith(getSigninKey(), SignatureAlgorithm.HS256)
+            .compact();
+   }
+
 
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -70,6 +82,11 @@ public class JwtServiceImpl implements JwtService {
 
 
     @Override
+    public String extractRole(String token) {
+       return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    @Override
     public Long getUserId() {
         User user = (User) SecurityContextHolder
                 .getContext().
@@ -78,5 +95,20 @@ public class JwtServiceImpl implements JwtService {
 
         return user.getUserId();
     }
+
+	 @Override
+   public String getCurrentUserRole() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null || auth.getAuthorities().isEmpty()) {
+        return null;
+    }
+    return auth.getAuthorities()
+               .stream()
+               .findFirst()
+               .map(GrantedAuthority::getAuthority)
+               .orElse("ROLE_EMPLOYEE");
+}
+
+
 
 }

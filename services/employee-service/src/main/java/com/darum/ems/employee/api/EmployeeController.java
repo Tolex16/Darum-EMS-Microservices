@@ -8,6 +8,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,65 +20,50 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmployeeController {
 
-  private final EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
-
-    // ✅ Create new employee
+	// Role-based access control: Only ADMIN can create employees
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody EmployeeCreateRequest request,@RequestHeader(value = "X-User-Role", required = false) String userRole) {
-
-      // Role-based access control: Only ADMIN can create employees
-      if (!"ADMIN".equals(userRole)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-      }
-
-      EmployeeResponse response = employeeService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<EmployeeResponse> createEmployee(
+            @Valid @RequestBody EmployeeCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.create(request));
     }
 
-    // ✅ Update employee
+	// Role-based access control: Only ADMIN can update employees
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeResponse> updateEmployee(
             @PathVariable Long id,
-            @RequestBody EmployeeUpdateRequest request,
-            @RequestHeader(value = "X-User-Role", required = false) String userRole)
-    {
-
-      // Role-based access control: Only ADMIN can update employees
-      if (!"ADMIN".equals(userRole)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-      }
-        EmployeeResponse response = employeeService.update(id, request);
-        return ResponseEntity.ok(response);
+            @RequestBody EmployeeUpdateRequest request) {
+        return ResponseEntity.ok(employeeService.update(id, request));
     }
 
-    // ✅ Delete employee
+	// ✅ Delete employee
+	// Role-based access control: Only ADMIN can delete employees
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id, @RequestHeader(value = "X-User-Role", required = false) String userRole){
-
-     // Role-based access control: Only ADMIN can update employees
-      if (!"ADMIN".equals(userRole)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-      }
-      employeeService.delete(id);
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+        employeeService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ Get employee by ID
+	// ✅ Get employee by ID
     @GetMapping("/{id}")
+    // ✅ Get employee by ID @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponse> getEmployeeById(@PathVariable Long id) {
-        EmployeeResponse response = employeeService.getById(id);
-        return ResponseEntity.ok(response);
+      EmployeeResponse response = employeeService.getById(id);
+      return ResponseEntity.ok(response);
     }
 
-    // ✅ Get all employees (paginated)
-    @GetMapping
-    public ResponseEntity<List<EmployeeResponse>> getAllEmployees(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        List<EmployeeResponse> employees = employeeService.getAll(page, size);
-        return ResponseEntity.ok(employees);
-    }
+  // ✅ Get all employees (paginated)
+  @GetMapping("/get-employees")
+  public ResponseEntity<List<EmployeeResponse>> getAllEmployees( @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size ) {
+    List<EmployeeResponse> employees = employeeService.getAll(page, size);
+    return ResponseEntity.ok(employees);
+  }
+
+
+
+
 }

@@ -4,9 +4,12 @@ spring:
   profiles:
     active: native
   cloud:
+    compatibility-verifier:
+      enabled: false
     config:
       server:
         native:
           search-locations: file:../../../../config-repo
+
 server:
   port: 8888

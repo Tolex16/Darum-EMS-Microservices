@@ -88,12 +88,13 @@ public class AuthServiceImpl implements AuthService {
     var user = userRepository.findByEmailIgnoreCase(loginRequest.getEmail())
       .orElseThrow(() -> new UserNotFoundException("User does not exist"));
 
-    userRepository.save(user); // <-- This is required to persist changes
+    userRepository.save(user);
 
     // Generate token and map user
     String jwt = jwtService.generateToken(user);
+    String role =jwtService.extractRole(jwt);
 
-    return new LoginResponse(jwt);
+    return new LoginResponse(jwt, role);
   }
 
   @Transactional
@@ -107,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @PostConstruct
-  public void createAdminUsers() {
+  public void createAdminManagerUsers() {
     Optional<User> adminUser = userRepository.findByEmailIgnoreCase("darumems@gmail.com");
     if (adminUser.isEmpty()) {
       User createAdmin = new User();
@@ -115,6 +116,15 @@ public class AuthServiceImpl implements AuthService {
       createAdmin.setPassword(passwordEncoder.encode("Winner123!"));
       createAdmin.setRole(Role.ADMIN);
       userRepository.save(createAdmin);
+    }
+
+    Optional<User> managerUser = userRepository.findByEmailIgnoreCase("managerdarumems@gmail.com");
+    if (managerUser.isEmpty()) {
+      User createManager = new User();
+      createManager.setEmail("managerdarumems@gmail.com");
+      createManager.setPassword(passwordEncoder.encode("Loser@123"));
+      createManager.setRole(Role.MANAGER);
+      userRepository.save(createManager);
     }
   }
 

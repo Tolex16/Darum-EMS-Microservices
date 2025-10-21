@@ -10,4 +10,6 @@ public class LoginResponse {
 
     @JsonProperty("token")
     private final String token;
+
+    private final String role;
 }
