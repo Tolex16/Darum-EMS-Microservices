@@ -86,12 +86,12 @@ jobs:
 
       - name: 🏗️ Build and push microservice images
         run: |
+          IMAGE_NAMESPACE_LOWER=$(echo "${IMAGE_NAMESPACE}" | tr '[:upper:]' '[:lower:]')
           declare -a SERVICES=("platform/config-server" "platform/discovery-service" "platform/api-gateway" "services/auth-service" "services/employee-service")
 
           for SERVICE in "${SERVICES[@]}"; do
             NAME=$(basename "$SERVICE")
-            
-            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE,, }}/darum-ems-${NAME}:${GITHUB_SHA}"
+            IMAGE="${REGISTRY}/${IMAGE_NAMESPACE_LOWER}/darum-ems-${NAME}:${GITHUB_SHA}"
             echo "🚀 Building $NAME → $IMAGE"
             docker build -t "$IMAGE" "$SERVICE"
             docker push "$IMAGE"
@@ -100,11 +100,12 @@ jobs:
       - name: 🏷️ Tag latest for main branch
         if: github.ref == 'refs/heads/main'
         run: |
+          IMAGE_NAMESPACE_LOWER=$(echo "${IMAGE_NAMESPACE}" | tr '[:upper:]' '[:lower:]')
           declare -a SERVICES=("platform/config-server" "platform/discovery-service" "platform/api-gateway" "services/auth-service" "services/employee-service")
           for SERVICE in "${SERVICES[@]}"; do
             NAME=$(basename "$SERVICE")
-            SHA_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE,, }}/darum-ems-${NAME}:${GITHUB_SHA}"
-            LATEST_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE,, }}/darum-ems-${NAME}:latest"
+            SHA_IMAGE="${REGISTRY}/${IMAGE_NAMESPACE_LOWER}/darum-ems-${NAME}:${GITHUB_SHA}"
+            LATEST_IMAGE="${REGISTRY}/${IMAGE_NAMESPACE_LOWER}/darum-ems-${NAME}:latest"
             docker tag "$SHA_IMAGE" "$LATEST_IMAGE"
             docker push "$LATEST_IMAGE"
           done
