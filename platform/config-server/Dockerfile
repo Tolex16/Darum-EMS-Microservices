@@ -2,11 +2,11 @@
 FROM maven:3.9.8-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy the entire repository (includes parent POM)
+# Copy entire project (to include parent POM)
 COPY ../../ /app
 
-# Build only this module using the parent POM
-RUN mvn -q -f /app/pom.xml -pl platform/config-server -am -DskipTests package
+# Build only the config-server module and its dependencies
+RUN mvn -q -pl platform/config-server -am -DskipTests package
 
 # ===== Runtime Stage =====
 FROM eclipse-temurin:17-jre

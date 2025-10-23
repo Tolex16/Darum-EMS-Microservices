@@ -1,0 +1,8 @@
+**/target/
+**/logs/
+**/.idea/
+**/.vscode/
+**/.git/
+**/.github/
+**/node_modules/
+**/*.iml
